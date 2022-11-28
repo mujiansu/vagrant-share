@@ -175,6 +175,9 @@ module VagrantPlugins
             end
           end
 
+          def posix_path(value)
+            value.gsub('\\', '/')
+          end
           # Start the ngrok proxy process
           #
           # @param [Vagrant::UI] ui UI instance for output
@@ -184,6 +187,14 @@ module VagrantPlugins
           def start_ngrok_proxy(ui, configuration, share_info_output, options)
             ngrok_process = nil
             base_config = File.expand_path("~/.ngrok2/ngrok.yml")
+            ngrok_path = "ngrok"
+            if Vagrant::Util::Platform.windows? then
+              ngrok_path = posix_path(Vagrant::Util::Which.which("ngrok"))
+              # https://partners-preview.ngrok.io/docs/ngrok-agent/config#config-ngrok-location
+              # %USERPROFILE% is equal to %HOMEPATH% and is not unc path
+              base_dir = ENV["USERPROFILE"]
+              base_config = posix_path(base_dir) + "/AppData/Local/ngrok/ngrok.yml"
+            end
             share_config = Tempfile.new("vagrant-share")
             share_config.write(configuration.to_yaml)
             share_config.close
@@ -194,7 +205,7 @@ module VagrantPlugins
             @logger.debug("Starting ngrok proxy process.")
 
             ngrok_process = Vagrant::Util::Subprocess.new(
-              *["ngrok", "start", "--config", base_config, "--config", share_config.path,
+              *[ngrok_path, "start", "--config", base_config, "--config", share_config.path,
                 "--all", "--log", "stdout", "--log-format", "json", "--log-level", "debug"],
               notify: [:stdout]
             )
