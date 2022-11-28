@@ -93,7 +93,7 @@ module VagrantPlugins
                   configuration["version"] = "2"
                   configuration["tunnels"]["http"] = {
                     "proto" => "http",
-                    
+                    "schemes" => ["http"],
                     "addr" => options[:http_port]
                   }
                 end
@@ -102,6 +102,7 @@ module VagrantPlugins
                   configuration["version"] = "2"
                   configuration["tunnels"]["https"] = {
                     "proto" => "tls",
+                    "schemes" => ["https"],
                     "addr" => options[:https_port]
                   }
                 end
