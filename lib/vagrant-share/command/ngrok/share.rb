@@ -88,16 +88,18 @@ module VagrantPlugins
                 end
 
                 machine.ui.output(I18n.t("vagrant_share.creating"))
-
+                # https://partners-preview.ngrok.io/docs/ngrok-agent/config#config-ngrok-tunnel-definitions-http-tunnels
                 if options[:http_port]
+                  configuration["version"] = "2"
                   configuration["tunnels"]["http"] = {
                     "proto" => "http",
-                    "bind_tls" => false,
+                    
                     "addr" => options[:http_port]
                   }
                 end
 
                 if options[:https_port]
+                  configuration["version"] = "2"
                   configuration["tunnels"]["https"] = {
                     "proto" => "tls",
                     "addr" => options[:https_port]
